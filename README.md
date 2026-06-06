@@ -14,3 +14,30 @@ Production-ready monolithic app with:
 docker compose up --build
 # Backend: http://localhost:8000
 # Frontend: http://localhost:3000
+
+
+logiai/
+├── backend/
+│   ├── src/
+│   │   ├── main.py
+│   │   ├── core/
+│   │   ├── models/
+│   │   ├── routers/
+│   │   ├── services/
+│   │   ├── rag/
+│   │   └── utils/
+│   ├── alembic.ini
+│   ├── requirements.txt
+│   └── Dockerfile
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── Dockerfile
+├── docker-compose.yml
+├── k8s/
+├── terraform/
+├── .env.example
+├── README.md
+└── .gitignore
