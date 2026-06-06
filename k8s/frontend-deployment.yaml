@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logiai-frontend
+  namespace: logiai
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: logiai-frontend
+  template:
+    metadata:
+      labels:
+        app: logiai-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: your-dockerhub/logiai-frontend:latest
+        ports:
+        - containerPort: 3000
