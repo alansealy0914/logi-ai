@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logiai-backend
+  namespace: logiai
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: logiai-backend
+  template:
+    metadata:
+      labels:
+        app: logiai-backend
+    spec:
+      containers:
+      - name: backend
+        image: your-dockerhub/logiai-backend:latest
+        envFrom:
+        - secretRef:
+            name: logiai-secrets
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
