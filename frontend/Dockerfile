@@ -20,11 +20,12 @@ WORKDIR /app
 # Copy built assets
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./
+COPY --from=builder /app/package-lock.json ./
 
 # Install only production dependencies
 RUN npm ci --production --frozen-lockfile
 
 EXPOSE 3000
 
-# For Vite dev server (since you're using npm run dev)
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+# Serve built assets in production
+CMD ["npx", "serve", "-s", "dist", "-l", "3000"]
