@@ -8,7 +8,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports: ["5432:5432"]
-    volumes: ["pgdata:/var/lib/postgresql/data"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
 
   backend:
     build: ./backend
@@ -18,7 +19,9 @@ services:
     depends_on: [postgres]
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     restart: always
     ports: ["3000:3000"]
     depends_on: [backend]
