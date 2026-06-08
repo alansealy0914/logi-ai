@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from ..core.database import AsyncSessionLocal
+from sqlalchemy import text, select
 from ..models.user import User
-from ..core.auth import verify_password, create_access_token, Token
+from ..core.auth import verify_password, create_access_token, Token, get_password_hash
+from ..core.config import settings
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -37,8 +39,8 @@ async def register(user: UserCreate):
 @router.post("/login", response_model=Token)
 async def login(form: OAuth2PasswordRequestForm = Depends()):
     async with AsyncSessionLocal() as session:
-        result = await session.execute("SELECT * FROM users WHERE email = :email", {"email": form.username})
-        user = result.fetchone()
+        result = await session.execute(select(User).where(User.email == form.username))
+        user = result.scalar_one_or_none()
         if not user or not verify_password(form.password, user.hashed_password):
             raise HTTPException(status_code=401, detail="Invalid credentials")
         token = create_access_token({"sub": user.email})
