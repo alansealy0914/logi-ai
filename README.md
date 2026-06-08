@@ -41,3 +41,19 @@ logiai/
 ├── .env.example
 ├── README.md
 └── .gitignore
+
+
+Useful commands if you want to re-run or inspect:
+- Start both (rebuild): 
+```bash
+cd /Users/alansealy/Desktop/logi-ai
+docker compose up -d --build
+```
+- Show status and recent logs:
+```bash
+docker compose ps
+docker compose logs backend --tail=50
+docker compose logs frontend --tail=50
+```
+
+Next step: open the frontend at http://localhost:4000 or tell me if you want me to run integration tests or open the PR for review.
