@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, NavLink } from 'react-router-dom';
 import axios from 'axios';
 import Auth from './components/Auth';
+import ShipmentList from './components/ShipmentList';
+import DashboardMetrics from './components/DashboardMetrics';
+import DriverList from './components/DriverList';
+import TruckList from './components/TruckList';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -20,16 +24,10 @@ function LiveMarker() {
   return <Marker position={position} />;
 }
 
-function Dashboard({ aiQuery, setAiQuery, aiResponse, askAI, logout }: { aiQuery: string; setAiQuery: (value: string) => void; aiResponse: string; askAI: () => Promise<void>; logout: () => void }) {
+function Dashboard({ aiQuery, setAiQuery, aiResponse, askAI }: { aiQuery: string; setAiQuery: (value: string) => void; aiResponse: string; askAI: () => Promise<void> }) {
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3>Welcome</h3>
-        <div>
-          <button onClick={logout} style={{ padding: '6px 12px' }}>Logout</button>
-        </div>
-      </div>
-
+      <DashboardMetrics />
       <div style={{ marginBottom: '30px' }}>
         <h2>AI Logistics Assistant</h2>
         <input
@@ -85,33 +83,71 @@ function AppRoutes() {
     setAiResponse(res.data.answer);
   };
 
-  return (
-    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h1 style={{ margin: 0 }}>🚛 LogiAI - Transportation Dashboard</h1>
-        <Link to="/login" style={{ textDecoration: 'none', color: '#0366d6', fontWeight: 600 }}>Login</Link>
-      </div>
+  const navLink = ({ isActive }: { isActive: boolean }) => ({
+    display: 'block',
+    padding: '10px 16px',
+    borderRadius: 6,
+    textDecoration: 'none',
+    fontWeight: 600,
+    color: isActive ? '#fff' : '#c9d1d9',
+    background: isActive ? '#0366d6' : 'transparent',
+  });
 
-      <Routes>
-        <Route
-          path="/login"
-          element={token ? <Navigate to="/dashboard" replace /> : <Auth mode="login" onAuthenticated={handleAuthenticated} />}
-        />
-        <Route
-          path="/register"
-          element={token ? <Navigate to="/dashboard" replace /> : <Auth mode="register" onAuthenticated={handleAuthenticated} />}
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute token={token}>
-              <Dashboard aiQuery={aiQuery} setAiQuery={setAiQuery} aiResponse={aiResponse} askAI={askAI} logout={logout} />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
-        <Route path="*" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
-      </Routes>
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh', fontFamily: 'Arial' }}>
+      {token && (
+        <aside style={{
+          width: 220,
+          background: '#1a1f2e',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '24px 16px',
+          gap: 8,
+          flexShrink: 0,
+        }}>
+          <div style={{ color: '#fff', fontWeight: 700, fontSize: 18, marginBottom: 24 }}>
+            🚛 LogiAI
+          </div>
+          <NavLink to="/dashboard" style={navLink}>📊 Dashboard</NavLink>
+          <NavLink to="/shipments" style={navLink}>📦 Shipments</NavLink>
+          <NavLink to="/drivers" style={navLink}>🧑‍✈️ Drivers</NavLink>
+          <NavLink to="/trucks" style={navLink}>🚛 Trucks</NavLink>
+          <div style={{ marginTop: 'auto' }}>
+            <button
+              onClick={logout}
+              style={{ width: '100%', padding: '10px', background: '#e53e3e', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer' }}
+            >
+              Logout
+            </button>
+          </div>
+        </aside>
+      )}
+
+      <main style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
+        <Routes>
+          <Route
+            path="/login"
+            element={token ? <Navigate to="/dashboard" replace /> : <Auth mode="login" onAuthenticated={handleAuthenticated} />}
+          />
+          <Route
+            path="/register"
+            element={token ? <Navigate to="/dashboard" replace /> : <Auth mode="register" onAuthenticated={handleAuthenticated} />}
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute token={token}>
+                <Dashboard aiQuery={aiQuery} setAiQuery={setAiQuery} aiResponse={aiResponse} askAI={askAI} />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/shipments" element={<ProtectedRoute token={token}><ShipmentList /></ProtectedRoute>} />
+          <Route path="/drivers"   element={<ProtectedRoute token={token}><DriverList /></ProtectedRoute>} />
+          <Route path="/trucks"    element={<ProtectedRoute token={token}><TruckList /></ProtectedRoute>} />
+          <Route path="/" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
+          <Route path="*" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
+        </Routes>
+      </main>
     </div>
   );
 }
