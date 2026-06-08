@@ -13,7 +13,7 @@ function LiveMarker() {
   const [position, setPosition] = useState<[number, number]>([40.7128, -74.0060]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8000/tracking/ws/TRK12345');
+    const ws = new WebSocket('ws://localhost:8002/tracking/ws/TRK12345');
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setPosition([data.lat, data.lng]);
@@ -24,20 +24,41 @@ function LiveMarker() {
   return <Marker position={position} />;
 }
 
-function Dashboard({ aiQuery, setAiQuery, aiResponse, askAI }: { aiQuery: string; setAiQuery: (value: string) => void; aiResponse: string; askAI: () => Promise<void> }) {
+function Dashboard({ aiQuery, setAiQuery, aiResponse, aiError, aiLoading, askAI }: {
+  aiQuery: string;
+  setAiQuery: (value: string) => void;
+  aiResponse: string;
+  aiError: string;
+  aiLoading: boolean;
+  askAI: () => Promise<void>;
+}) {
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
       <DashboardMetrics />
       <div style={{ marginBottom: '30px' }}>
         <h2>AI Logistics Assistant</h2>
-        <input
-          value={aiQuery}
-          onChange={(e) => setAiQuery(e.target.value)}
-          placeholder="e.g. Find similar delayed shipments from Chicago"
-          style={{ width: '400px', padding: '10px' }}
-        />
-        <button onClick={askAI} style={{ padding: '10px 20px' }}>Ask AI</button>
-        {aiResponse && <p><strong>Answer:</strong> {aiResponse}</p>}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <input
+            value={aiQuery}
+            onChange={(e) => setAiQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && askAI()}
+            placeholder="e.g. Show delayed shipments and their locations"
+            style={{ flex: 1, maxWidth: 500, padding: '10px' }}
+          />
+          <button onClick={askAI} disabled={aiLoading} style={{ padding: '10px 20px', opacity: aiLoading ? 0.6 : 1 }}>
+            {aiLoading ? 'Thinking...' : 'Ask AI'}
+          </button>
+        </div>
+        {aiError && (
+          <div style={{ padding: '10px 14px', background: '#fff5f5', border: '1px solid #feb2b2', borderRadius: 6, color: '#c53030', fontSize: 14 }}>
+            ⚠️ {aiError}
+          </div>
+        )}
+        {aiResponse && !aiError && (
+          <div style={{ padding: '14px', background: '#f0f4ff', border: '1px solid #c3d3f5', borderRadius: 6, lineHeight: 1.6 }}>
+            <strong>Answer:</strong> {aiResponse}
+          </div>
+        )}
       </div>
 
       <div>
@@ -58,6 +79,8 @@ function ProtectedRoute({ token, children }: { token: string | null; children: J
 function AppRoutes() {
   const [aiQuery, setAiQuery] = useState("");
   const [aiResponse, setAiResponse] = useState("");
+  const [aiError, setAiError] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('access_token'));
   const navigate = useNavigate();
 
@@ -79,8 +102,22 @@ function AppRoutes() {
   };
 
   const askAI = async () => {
-    const res = await axios.post('http://localhost:8002/ai/assistant', { query: aiQuery });
-    setAiResponse(res.data.answer);
+    if (!aiQuery.trim()) return;
+    setAiLoading(true);
+    setAiError("");
+    setAiResponse("");
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await axios.post('http://localhost:8002/ai/assistant', { query: aiQuery }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAiResponse(res.data.answer);
+    } catch (err: any) {
+      const detail = err?.response?.data?.detail;
+      setAiError(detail || 'AI assistant is unavailable. Please try again.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const navLink = ({ isActive }: { isActive: boolean }) => ({
@@ -137,7 +174,7 @@ function AppRoutes() {
             path="/dashboard"
             element={
               <ProtectedRoute token={token}>
-                <Dashboard aiQuery={aiQuery} setAiQuery={setAiQuery} aiResponse={aiResponse} askAI={askAI} />
+                <Dashboard aiQuery={aiQuery} setAiQuery={setAiQuery} aiResponse={aiResponse} aiError={aiError} aiLoading={aiLoading} askAI={askAI} />
               </ProtectedRoute>
             }
           />
