@@ -15,6 +15,25 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: your-dockerhub/logiai-frontend:latest
+        image: FRONTEND_ECR_URL:latest   # replaced by CI/CD
         ports:
         - containerPort: 3000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10

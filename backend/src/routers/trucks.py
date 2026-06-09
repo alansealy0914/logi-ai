@@ -18,6 +18,10 @@ class TruckCreate(BaseModel):
     driver_id: Optional[UUID] = None
 
 class TruckUpdate(BaseModel):
+    truck_id: Optional[str] = None
+    plate: Optional[str] = None
+    model: Optional[str] = None
+    capacity_tons: Optional[float] = None
     status: Optional[str] = None
     driver_id: Optional[UUID] = None
 
@@ -64,9 +68,21 @@ async def update_truck(truck_uuid: UUID, update: TruckUpdate, user=Depends(get_c
     async with AsyncSessionLocal() as session:
         await session.execute(text("""
             UPDATE trucks SET
-                status    = COALESCE(:status, status),
-                driver_id = COALESCE(:driver_id, driver_id)
+                truck_id      = COALESCE(:truck_id, truck_id),
+                plate         = COALESCE(:plate, plate),
+                model         = COALESCE(:model, model),
+                capacity_tons = COALESCE(:capacity_tons, capacity_tons),
+                status        = COALESCE(:status, status),
+                driver_id     = COALESCE(:driver_id, driver_id)
             WHERE id = :id
-        """), {"id": str(truck_uuid), "status": update.status, "driver_id": str(update.driver_id) if update.driver_id else None})
+        """), {
+            "id": str(truck_uuid),
+            "truck_id": update.truck_id,
+            "plate": update.plate,
+            "model": update.model,
+            "capacity_tons": update.capacity_tons,
+            "status": update.status,
+            "driver_id": str(update.driver_id) if update.driver_id else None,
+        })
         await session.commit()
         return {"msg": "Updated"}

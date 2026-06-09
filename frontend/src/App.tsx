@@ -6,6 +6,11 @@ import ShipmentList from './components/ShipmentList';
 import DashboardMetrics from './components/DashboardMetrics';
 import DriverList from './components/DriverList';
 import TruckList from './components/TruckList';
+import CreateShipment from './components/CreateShipment';
+import ShipmentDetail from './components/ShipmentDetail';
+import DriverDetail from './components/DriverDetail';
+import TruckDetail from './components/TruckDetail';
+import RouteOptimization from './components/RouteOptimization';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -72,7 +77,8 @@ function Dashboard({ aiQuery, setAiQuery, aiResponse, aiError, aiLoading, askAI 
   );
 }
 
-function ProtectedRoute({ token, children }: { token: string | null; children: JSX.Element }) {
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const token = localStorage.getItem('access_token');
   return token ? children : <Navigate to="/login" replace />;
 }
 
@@ -149,6 +155,7 @@ function AppRoutes() {
           <NavLink to="/shipments" style={navLink}>📦 Shipments</NavLink>
           <NavLink to="/drivers" style={navLink}>🧑‍✈️ Drivers</NavLink>
           <NavLink to="/trucks" style={navLink}>🚛 Trucks</NavLink>
+          <NavLink to="/optimize" style={navLink}>🗺️ Route Optimizer</NavLink>
           <div style={{ marginTop: 'auto' }}>
             <button
               onClick={logout}
@@ -173,16 +180,23 @@ function AppRoutes() {
           <Route
             path="/dashboard"
             element={
-              <ProtectedRoute token={token}>
+              <ProtectedRoute>
                 <Dashboard aiQuery={aiQuery} setAiQuery={setAiQuery} aiResponse={aiResponse} aiError={aiError} aiLoading={aiLoading} askAI={askAI} />
               </ProtectedRoute>
             }
           />
-          <Route path="/shipments" element={<ProtectedRoute token={token}><ShipmentList /></ProtectedRoute>} />
-          <Route path="/drivers"   element={<ProtectedRoute token={token}><DriverList /></ProtectedRoute>} />
-          <Route path="/trucks"    element={<ProtectedRoute token={token}><TruckList /></ProtectedRoute>} />
+          <Route path="/shipments"      element={<ProtectedRoute><ShipmentList /></ProtectedRoute>} />
+          <Route path="/shipments/new"  element={<ProtectedRoute><CreateShipment /></ProtectedRoute>} />
+          <Route path="/shipments/:id"  element={<ProtectedRoute><ShipmentDetail /></ProtectedRoute>} />
+          <Route path="/drivers"      element={<ProtectedRoute><DriverList /></ProtectedRoute>} />
+          <Route path="/drivers/new"  element={<ProtectedRoute><DriverDetail /></ProtectedRoute>} />
+          <Route path="/drivers/:id"  element={<ProtectedRoute><DriverDetail /></ProtectedRoute>} />
+          <Route path="/trucks"       element={<ProtectedRoute><TruckList /></ProtectedRoute>} />
+          <Route path="/trucks/new"   element={<ProtectedRoute><TruckDetail /></ProtectedRoute>} />
+          <Route path="/trucks/:id"   element={<ProtectedRoute><TruckDetail /></ProtectedRoute>} />
+          <Route path="/optimize"     element={<ProtectedRoute><RouteOptimization /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
-          <Route path="*" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </main>
     </div>

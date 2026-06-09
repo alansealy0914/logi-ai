@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Shipment } from '../models/Shipment';
 
 export default function ShipmentList() {
+  const navigate = useNavigate();
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchShipments = async () => {
-      try {
-        const res = await axios.get('http://localhost:8002/shipments/');
-        setShipments(res.data);
-        setError(null);
-      } catch (err: any) {
-        setError(err?.response?.data?.detail || err.message || 'Failed to load shipments');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchShipments();
+    const token = localStorage.getItem('access_token');
+    axios.get('http://localhost:8002/shipments/', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => { setShipments(res.data); setError(null); })
+      .catch(err => setError(err?.response?.data?.detail || err.message || 'Failed to load shipments'))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <div style={{ padding: '20px' }}>Loading shipments...</div>;
@@ -32,19 +27,12 @@ export default function ShipmentList() {
       {error && <div style={{ color: 'crimson', marginBottom: 10 }}>{error}</div>}
 
       <div style={{ marginBottom: '20px' }}>
-        <Link
-          to="/create-shipment"
-          style={{
-            padding: '8px 16px',
-            background: '#0366d6',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: 4,
-            fontWeight: 600,
-          }}
+        <button
+          onClick={() => navigate('/shipments/new')}
+          style={{ padding: '8px 16px', background: '#0366d6', color: 'white', border: 'none', borderRadius: 4, fontWeight: 600, cursor: 'pointer' }}
         >
           + New Shipment
-        </Link>
+        </button>
       </div>
 
       {shipments.length === 0 ? (
@@ -87,12 +75,12 @@ export default function ShipmentList() {
                     : 'N/A'}
                 </td>
                 <td style={{ padding: '10px' }}>
-                  <Link
-                    to={`/shipments/${shipment.id}`}
-                    style={{ color: '#0366d6', textDecoration: 'none', fontWeight: 600 }}
+                  <button
+                    onClick={() => navigate(`/shipments/${shipment.id}`)}
+                    style={{ background: 'none', border: 'none', color: '#0366d6', cursor: 'pointer', fontWeight: 600, padding: 0 }}
                   >
                     View
-                  </Link>
+                  </button>
                 </td>
               </tr>
             ))}
