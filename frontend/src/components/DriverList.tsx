@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Driver } from '../models/Fleet';
 
@@ -9,6 +10,7 @@ const statusColor: Record<string, { bg: string; color: string }> = {
 };
 
 export default function DriverList() {
+  const navigate = useNavigate();
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +28,19 @@ export default function DriverList() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2 style={{ marginTop: 0 }}>🧑‍✈️ Drivers</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h2 style={{ margin: 0 }}>🧑✈️ Drivers</h2>
+        <button
+          onClick={() => navigate('/drivers/new')}
+          style={{ padding: '8px 16px', background: '#0366d6', color: '#fff', border: 'none', borderRadius: 6, fontWeight: 600, cursor: 'pointer' }}
+        >
+          + New Driver
+        </button>
+      </div>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ borderBottom: '2px solid #e1e4e8', background: '#f6f8fa' }}>
-            {['Name', 'License', 'Phone', 'Status'].map(h => (
+            {['Name', 'License', 'Phone', 'Status', ''].map(h => (
               <th key={h} style={{ textAlign: 'left', padding: '10px 14px', fontSize: 13, color: '#6a737d' }}>{h}</th>
             ))}
           </tr>
@@ -47,6 +57,14 @@ export default function DriverList() {
                   <span style={{ padding: '3px 10px', borderRadius: 12, fontSize: 12, fontWeight: 600, background: badge.bg, color: badge.color }}>
                     {d.status.replace('_', ' ')}
                   </span>
+                </td>
+                <td style={{ padding: '12px 14px' }}>
+                  <button
+                    onClick={() => navigate(`/drivers/${d.id}`)}
+                    style={{ background: 'none', border: 'none', color: '#0366d6', cursor: 'pointer', fontWeight: 600, padding: 0 }}
+                  >
+                    Edit
+                  </button>
                 </td>
               </tr>
             );

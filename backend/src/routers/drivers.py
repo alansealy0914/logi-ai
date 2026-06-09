@@ -16,6 +16,8 @@ class DriverCreate(BaseModel):
     status: str = "AVAILABLE"
 
 class DriverUpdate(BaseModel):
+    name: Optional[str] = None
+    license_number: Optional[str] = None
     status: Optional[str] = None
     phone: Optional[str] = None
 
@@ -52,9 +54,11 @@ async def update_driver(driver_id: UUID, update: DriverUpdate, user=Depends(get_
     async with AsyncSessionLocal() as session:
         await session.execute(text("""
             UPDATE drivers SET
-                status = COALESCE(:status, status),
-                phone  = COALESCE(:phone, phone)
+                name           = COALESCE(:name, name),
+                license_number = COALESCE(:license_number, license_number),
+                status         = COALESCE(:status, status),
+                phone          = COALESCE(:phone, phone)
             WHERE id = :id
-        """), {"id": str(driver_id), "status": update.status, "phone": update.phone})
+        """), {"id": str(driver_id), "name": update.name, "license_number": update.license_number, "status": update.status, "phone": update.phone})
         await session.commit()
         return {"msg": "Updated"}
