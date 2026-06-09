@@ -1,8 +1,6 @@
 from sqlalchemy import Column, String, UUID
-from sqlalchemy.orm import declarative_base
+from ..core.database import Base
 import uuid
-
-Base = declarative_base()
 
 class User(Base):
     __tablename__ = "users"
