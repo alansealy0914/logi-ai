@@ -11,6 +11,7 @@ import ShipmentDetail from './components/ShipmentDetail';
 import DriverDetail from './components/DriverDetail';
 import TruckDetail from './components/TruckDetail';
 import RouteOptimization from './components/RouteOptimization';
+import Footer from './components/Footer';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -167,7 +168,8 @@ function AppRoutes() {
         </aside>
       )}
 
-      <main style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' }}>
+        <div style={{ flex: 1, padding: '24px', overflowY: 'auto' }}>
         <Routes>
           <Route
             path="/login"
@@ -198,6 +200,8 @@ function AppRoutes() {
           <Route path="/" element={<Navigate to={token ? '/dashboard' : '/login'} replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+        </div>
+        <Footer />
       </main>
     </div>
   );
