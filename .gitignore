@@ -5,3 +5,8 @@ node_modules/
 dist/
 *.log
 .env.example
+
+# Python virtual environment
+.venv/
+venv/
+env/
