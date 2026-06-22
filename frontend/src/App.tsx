@@ -12,6 +12,7 @@ import DriverDetail from './components/DriverDetail';
 import TruckDetail from './components/TruckDetail';
 import RouteOptimization from './components/RouteOptimization';
 import Footer from './components/Footer';
+import AIChat from './components/AIChat';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -30,42 +31,11 @@ function LiveMarker() {
   return <Marker position={position} />;
 }
 
-function Dashboard({ aiQuery, setAiQuery, aiResponse, aiError, aiLoading, askAI }: {
-  aiQuery: string;
-  setAiQuery: (value: string) => void;
-  aiResponse: string;
-  aiError: string;
-  aiLoading: boolean;
-  askAI: () => Promise<void>;
-}) {
+function Dashboard() {
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
       <DashboardMetrics />
-      <div style={{ marginBottom: '30px' }}>
-        <h2>AI Logistics Assistant</h2>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <input
-            value={aiQuery}
-            onChange={(e) => setAiQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && askAI()}
-            placeholder="e.g. Show delayed shipments and their locations"
-            style={{ flex: 1, maxWidth: 500, padding: '10px' }}
-          />
-          <button onClick={askAI} disabled={aiLoading} style={{ padding: '10px 20px', opacity: aiLoading ? 0.6 : 1 }}>
-            {aiLoading ? 'Thinking...' : 'Ask AI'}
-          </button>
-        </div>
-        {aiError && (
-          <div style={{ padding: '10px 14px', background: '#fff5f5', border: '1px solid #feb2b2', borderRadius: 6, color: '#c53030', fontSize: 14 }}>
-            ⚠️ {aiError}
-          </div>
-        )}
-        {aiResponse && !aiError && (
-          <div style={{ padding: '14px', background: '#f0f4ff', border: '1px solid #c3d3f5', borderRadius: 6, lineHeight: 1.6 }}>
-            <strong>Answer:</strong> {aiResponse}
-          </div>
-        )}
-      </div>
+      <AIChat />
 
       <div>
         <h2>Live Shipment Tracking</h2>
@@ -84,10 +54,6 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 }
 
 function AppRoutes() {
-  const [aiQuery, setAiQuery] = useState("");
-  const [aiResponse, setAiResponse] = useState("");
-  const [aiError, setAiError] = useState("");
-  const [aiLoading, setAiLoading] = useState(false);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('access_token'));
   const navigate = useNavigate();
 
@@ -106,25 +72,6 @@ function AppRoutes() {
     localStorage.removeItem('access_token');
     setToken(null);
     navigate('/login');
-  };
-
-  const askAI = async () => {
-    if (!aiQuery.trim()) return;
-    setAiLoading(true);
-    setAiError("");
-    setAiResponse("");
-    try {
-      const token = localStorage.getItem('access_token');
-      const res = await axios.post('http://localhost:8002/ai/assistant', { query: aiQuery }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setAiResponse(res.data.answer);
-    } catch (err: any) {
-      const detail = err?.response?.data?.detail;
-      setAiError(detail || 'AI assistant is unavailable. Please try again.');
-    } finally {
-      setAiLoading(false);
-    }
   };
 
   const navLink = ({ isActive }: { isActive: boolean }) => ({
@@ -183,7 +130,7 @@ function AppRoutes() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard aiQuery={aiQuery} setAiQuery={setAiQuery} aiResponse={aiResponse} aiError={aiError} aiLoading={aiLoading} askAI={askAI} />
+                <Dashboard />
               </ProtectedRoute>
             }
           />
