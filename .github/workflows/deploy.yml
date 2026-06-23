@@ -64,6 +64,12 @@ jobs:
         kubectl apply -f k8s/backend-deployment.yaml
         kubectl apply -f k8s/frontend-deployment.yaml
         kubectl apply -f k8s/hpa.yaml
+
+        # Substitute ACM cert ARN and domain into ingress
+        ACM_CERT_ARN=$(cd terraform && terraform output -raw acm_certificate_arn)
+        sed -i -e "s|ACM_CERT_ARN|$ACM_CERT_ARN|g" \
+               -e "s|DOMAIN_NAME|${{ secrets.DOMAIN_NAME }}|g" \
+               k8s/ingress.yaml
         kubectl apply -f k8s/ingress.yaml
 
         # Force rolling update with new image tag
