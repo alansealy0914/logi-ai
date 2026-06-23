@@ -17,7 +17,7 @@ export default function DriverList() {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    axios.get('http://localhost:8002/drivers/', { headers: { Authorization: `Bearer ${token}` } })
+    axios.get('http://localhost:8009/drivers/', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setDrivers(res.data))
       .catch(err => setError(err?.response?.data?.detail || err.message))
       .finally(() => setLoading(false));

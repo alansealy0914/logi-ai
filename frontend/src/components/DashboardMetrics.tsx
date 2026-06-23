@@ -47,7 +47,7 @@ export default function DashboardMetrics() {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    axios.get('http://localhost:8002/shipments/metrics', {
+    axios.get('http://localhost:8009/shipments/metrics', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => setMetrics(res.data))

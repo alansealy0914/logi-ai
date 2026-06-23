@@ -20,7 +20,7 @@ function LiveMarker() {
   const [position, setPosition] = useState<[number, number]>([40.7128, -74.0060]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8002/tracking/ws/TRK12345');
+    const ws = new WebSocket('ws://localhost:8009/tracking/ws/TRK12345');
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       setPosition([data.lat, data.lng]);

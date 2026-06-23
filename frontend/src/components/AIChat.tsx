@@ -14,7 +14,7 @@ export default function AIChat() {
     setResponse('');
     try {
       const token = localStorage.getItem('access_token');
-      const res = await axios.post('http://localhost:8002/ai/assistant', { query }, {
+      const res = await axios.post('http://localhost:8009/ai/assistant', { query }, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setResponse(res.data.answer);

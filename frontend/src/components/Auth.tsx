@@ -46,7 +46,7 @@ export default function Auth({ mode, onAuthenticated }: { mode: AuthMode; onAuth
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:8002/auth/register', { email, password, full_name: fullName });
+      await axios.post('http://localhost:8009/auth/register', { email, password, full_name: fullName });
       setError(null);
       navigate('/login', { state: { success: 'Registration successful! Please sign in.' } });
     } catch (err: any) {
@@ -61,7 +61,7 @@ export default function Auth({ mode, onAuthenticated }: { mode: AuthMode; onAuth
       const params = new URLSearchParams();
       params.append('username', email);
       params.append('password', password);
-      const res = await axios.post('http://localhost:8002/auth/login', params, {
+      const res = await axios.post('http://localhost:8009/auth/login', params, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       });
       onAuthenticated(res.data.access_token);

@@ -11,7 +11,7 @@ export default function ShipmentList() {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    axios.get('http://localhost:8002/shipments/', {
+    axios.get('http://localhost:8009/shipments/', {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => { setShipments(res.data); setError(null); })

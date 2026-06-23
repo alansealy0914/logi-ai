@@ -17,7 +17,7 @@ export default function TruckList() {
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
-    axios.get('http://localhost:8002/trucks/', { headers: { Authorization: `Bearer ${token}` } })
+    axios.get('http://localhost:8009/trucks/', { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setTrucks(res.data))
       .catch(err => setError(err?.response?.data?.detail || err.message))
       .finally(() => setLoading(false));
