@@ -32,6 +32,7 @@ BACKEND_ECR=$(terraform output -raw ecr_backend_url)
 FRONTEND_ECR=$(terraform output -raw ecr_frontend_url)
 EKS_CLUSTER=$(terraform output -raw eks_cluster_name)
 RDS_ENDPOINT=$(terraform output -raw rds_endpoint)
+ACM_CERT_ARN=$(terraform output -raw acm_certificate_arn)
 cd ..
 
 # ── ECR push ───────────────────────────────────────────────────────────────
@@ -71,7 +72,9 @@ sed "s|BACKEND_ECR_URL|$BACKEND_ECR|g"   k8s/backend-deployment.yaml  | kubectl 
 sed "s|FRONTEND_ECR_URL|$FRONTEND_ECR|g" k8s/frontend-deployment.yaml | kubectl apply -f -
 kubectl apply -f k8s/services.yaml
 kubectl apply -f k8s/hpa.yaml
-kubectl apply -f k8s/ingress.yaml
+sed -e "s|ACM_CERT_ARN|$ACM_CERT_ARN|g" \
+    -e "s|DOMAIN_NAME|${DOMAIN_NAME:?Set DOMAIN_NAME env var}|g" \
+    k8s/ingress.yaml | kubectl apply -f -
 
 kubectl rollout status deployment/logiai-backend  -n logiai --timeout=180s
 kubectl rollout status deployment/logiai-frontend -n logiai --timeout=180s

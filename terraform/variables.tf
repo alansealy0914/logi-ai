@@ -37,3 +37,8 @@ variable "eks_node_min" {
 variable "eks_node_max" {
   default = 4
 }
+
+variable "domain_name" {
+  description = "Public domain name for the app (e.g. logiai.example.com)"
+  type        = string
+}
