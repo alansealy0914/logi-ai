@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import shipments, ai, tracking, optimization, auth, drivers, trucks
-from .models import fleet, shipment, user  # noqa - register all models
+clearfrom .models import fleet, shipment, user  # noqa - register all models
 from sqlalchemy import text
 from .core.database import engine, Base
 
