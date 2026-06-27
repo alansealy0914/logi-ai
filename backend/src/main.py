@@ -1,9 +1,17 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import shipments, ai, tracking, optimization, auth, drivers, trucks
-from .models import fleet  # ensure fleet tables are registered  # noqa
+from .models import fleet, shipment, user  # noqa - register all models
+from sqlalchemy import text
+from .core.database import engine, Base
 
 app = FastAPI(title="LogiAI", version="1.1.0")
+
+@app.on_event("startup")
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        await conn.run_sync(Base.metadata.create_all)
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
