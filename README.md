@@ -55,5 +55,55 @@ docker compose ps
 docker compose logs backend --tail=50
 docker compose logs frontend --tail=50
 ```
+......................................................
+more useful docker commands;
+When new development needs to be passed to docker:
+
+docker-compose down -v
+docker-compose up --build -d
+
+or...
+docker compose down && docker compose up -d
+
+When need to re-seed:
+
+docker-compose down -v
+docker-compose up
+
+or... npm run seed --workspace=backend
+
+then:
+docker-compose down -v
+docker-compose up --build -d
+
+---------------------------------------------------
+Rebuild-backend:
+docker compose up -d --build backend
+
+Restart the backend:
+docker compose restart backend
+----------------------------------------------------------------------------------
+A clean re-build so the container picks up new changes:
+docker compose down && docker compose up -d –build
+
+
+Can't push refs to remote. Try running "Pull" first to integrate your changes.
+
+cd /Users/alansealy/Desktop/asealy0914-Repository/0914-repo/logi-ai
+git pull --rebase origin main
+
+then:
+
+push from terminal:
+git push origin main
+
+if all else fails...
+force push:
+git push origin main --force-with-lease
+
+
+When we need to rerun migrations:
+npm run db:migrate --workspace=backend
+
 
 Next step: open the frontend at http://localhost:4000 or tell me if you want me to run integration tests or open the PR for review.
