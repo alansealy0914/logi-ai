@@ -5,7 +5,8 @@ from sqlalchemy import text
 from src.core.database import AsyncSessionLocal, engine, Base
 from src.rag.vector_store import VectorStore
 import src.models.shipment
-import src.models.fleet  # ensure all tables registered
+import src.models.fleet
+import src.models.user  # ensure all tables registered
 
 async def seed_data():
     async with engine.begin() as conn:
@@ -13,6 +14,15 @@ async def seed_data():
 
     async with AsyncSessionLocal() as session:
         now = dt.utcnow()
+
+        # --- Demo User ---
+        from src.core.auth import get_password_hash
+        await session.execute(text("""
+            INSERT INTO users (id, email, hashed_password, full_name)
+            VALUES (:id, :email, :hashed_password, :full_name)
+            ON CONFLICT (email) DO NOTHING
+        """), {"id": str(uuid.uuid4()), "email": "admin@logiai.com", "hashed_password": get_password_hash("admin123"), "full_name": "Admin User"})
+        print("✅ Upserted demo user: admin@logiai.com / admin123")
 
         # --- Drivers ---
         drivers = [
